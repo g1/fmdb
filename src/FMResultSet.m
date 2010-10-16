@@ -116,10 +116,65 @@
                 if (value) {
                     [dict setObject:value forKey:colName];
                 }
+                else { // Ohh NULL -gl
+                    [dict setObject:[NSNull null] forKey:colName];
+                }
+
             }
         }
         
         return [[dict copy] autorelease];
+    }
+    else {
+        NSLog(@"Warning: There seem to be no columns in this set.");
+    }
+    
+    return nil;
+}
+
+- (NSArray *)resultArray {
+    
+    NSUInteger num_cols = sqlite3_data_count(statement.statement);
+    
+    if (num_cols > 0) {
+        NSMutableArray *result = [NSMutableArray arrayWithCapacity:num_cols];
+        
+        NSUInteger i;
+        for (i = 0; i < num_cols; i++) {
+            
+            id value = nil;
+                
+            // fetch according to type
+            switch (sqlite3_column_type(statement.statement, i)) {
+                case SQLITE_INTEGER: {
+                    value = [NSNumber numberWithInt:[self intForColumnIndex:i]];
+                    break;
+                }
+                case SQLITE_FLOAT: {
+                    value = [NSNumber numberWithDouble:[self doubleForColumnIndex:i]];
+                    break;
+                }
+                case SQLITE_TEXT: {
+                    value = [self stringForColumnIndex:i];
+                    break;
+                }
+                case SQLITE_BLOB: {
+                    value = [self dataForColumnIndex:i];
+                    break;
+                }
+            }
+                
+            // save to result
+            if (value) {
+                [result addObject:value];
+            }
+            else {
+                [result addObject:[NSNull null]];
+            }
+                
+        }
+        
+        return [[result copy] autorelease];
     }
     else {
         NSLog(@"Warning: There seem to be no columns in this set.");
@@ -378,7 +433,5 @@
         statement = [value retain];
     }
 }
-
-
 
 @end
