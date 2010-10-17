@@ -110,14 +110,16 @@
                         value = [self dataForColumnIndex:i];
                         break;
                     }
+                    case SQLITE_NULL: {
+                        value = [NSNull null];
+                        break;
+                    }
+
                 }
                 
                 // save to dict
                 if (value) {
                     [dict setObject:value forKey:colName];
-                }
-                else { // Ohh NULL -gl
-                    [dict setObject:[NSNull null] forKey:colName];
                 }
 
             }
@@ -162,14 +164,15 @@
                     value = [self dataForColumnIndex:i];
                     break;
                 }
+                case SQLITE_NULL: {
+                    value = [NSNull null];
+                    break;
+                }
             }
                 
             // save to result
             if (value) {
                 [result addObject:value];
-            }
-            else {
-                [result addObject:[NSNull null]];
             }
                 
         }
